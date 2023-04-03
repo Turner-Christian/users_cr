@@ -18,6 +18,14 @@ class User:
 
         users = []
 
-        for result in results:
-            cls.append(cls(users))
+        for user in results:
+            users.append(cls(user))
         return users
+
+    @classmethod
+    def create(cls,data):
+        query = 'INSERT INTO users(first_name,last_name,email,created_at,updated_at) VALUES(%(first_name)s,%(last_name)s,%(email)s,NOW(),NOW())'
+
+        results = connectToMySQL(cls.db).query_db(query,data)
+        print(results)
+        return results
