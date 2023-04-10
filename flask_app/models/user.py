@@ -1,5 +1,8 @@
 from flask_app.config.mysqlconnection import connectToMySQL
+from flask import flash
+import re
 
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 class User:
     db = 'users_cr_schema'
     def __init__(self, data):
@@ -54,3 +57,32 @@ class User:
         """
         result = connectToMySQL(cls.db).query_db(query,{'id' : id})
         return result
+
+    @classmethod
+    def unique_email(cls,data):
+        query = """
+        SELECT email FROM users
+        """
+        result = connectToMySQL(cls.db).query_db(query)
+        emails = []
+        for email in result:
+            emails.append(email)
+        for email in emails:
+            if email['email'] == data:
+                flash('Email in use')
+                return True
+        return result
+
+    @staticmethod
+    def user_vald(input):
+        is_valid = True
+        if not input['first_name']:
+            flash('First Name is required')
+            is_valid = False
+        if not input['last_name']:
+            flash('Last Name is required')
+            is_valid = False
+        if not EMAIL_REGEX.match(input['email']):
+            flash('Email address is not valid')
+            is_valid = False
+        return is_valid

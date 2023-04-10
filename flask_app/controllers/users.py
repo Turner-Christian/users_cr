@@ -8,14 +8,20 @@ def index():
 
 @app.route('/create', methods=['POST'])
 def create():
+    session['first_name'] = request.form['first_name']
+    session['last_name'] = request.form['last_name']
+    session['email'] = request.form['email']
+    if not User.user_vald(request.form):
+        return redirect('/')
+    if User.unique_email(request.form['email']) == True:
+        return redirect('/')
+    session.clear()
     user = User.create(request.form)
-    # print(user)
-    print('-'*15)
-    print(request.form)
     return redirect('/show/' + str(user))
 
 @app.route('/show')
 def show():
+    session.clear()
     users = User.get_all()
     return render_template('show.html', users=users)
 
